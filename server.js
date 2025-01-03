@@ -1,9 +1,18 @@
-const express = require('express');
-const cors = require('cors');
+// api/download.js
+
 const ytdl = require('ytdl-core');
-const app = express();app.use(cors());app.listen(4000, () => {
-    console.log('Server Works !!! At port 4000');
-});app.get('/download', (req,res) => {
-    var URL = req.query.URL;
-    res.json({url:URL});
-})
+
+module.exports = async (req, res) => {
+    const { URL } = req.query;
+
+    if (!URL) {
+        return res.status(400).json({ error: 'URL parameter is required' });
+    }
+
+    try {
+        // Send the URL as a response, or you can handle downloading with ytdl here.
+        res.json({ url: URL });
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred' });
+    }
+};
