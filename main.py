@@ -6,7 +6,7 @@ import uuid
 
 app = Flask(__name__)
 
-@app.route('/download', methods=['POST'])
+@app.route('/api/download', methods=['POST'])
 def download():
     try:
         # Parse input
