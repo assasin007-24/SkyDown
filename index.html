@@ -38,7 +38,7 @@
         <button type="submit">Download</button>
     </form>
     <script>
- document.getElementById('downloadForm').addEventListener('submit', async (e) => {
+document.getElementById('downloadForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const url = document.getElementById('url').value;
     const format = document.getElementById('format').value;
@@ -51,6 +51,7 @@
         });
 
         if (response.ok) {
+            // If successful, download the file
             const blob = await response.blob();
             const downloadUrl = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -58,13 +59,15 @@
             a.download = `download.${format}`;
             a.click();
         } else {
+            // If error, show the error message (JSON response)
             const error = await response.json();
-            alert(error.error);
+            alert(`Error: ${error.error}`);
         }
     } catch (err) {
         alert('Error: ' + err.message);
     }
 });
+
     </script>
 </body>
 </html>

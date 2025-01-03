@@ -38,10 +38,11 @@ def download():
             subprocess.run(['ffmpeg', '-i', input_file, '-vn', '-ar', '44100', '-ac', '2', '-b:a', '192k', output_file], check=True)
             os.remove(input_file)  # Clean up intermediate file
 
-        # Serve file
+        # Serve file directly (no JSON for successful file download)
         return send_file(output_file, as_attachment=True, download_name=f"download.{format_type}")
 
     except Exception as e:
+        # Return a JSON error response in case of failure
         return jsonify({"error": str(e)}), 500
     finally:
         # Cleanup files
