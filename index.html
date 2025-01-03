@@ -3,71 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyDown</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        input, select, button {
-            padding: 10px;
-            font-size: 1em;
-        }
-    </style>
+    <title>Video Download</title>
 </head>
 <body>
-    <h1>SkyDown</h1>
+    <h1>Download Video</h1>
     <form id="downloadForm">
-        <input type="text" id="url" placeholder="Enter video URL" required>
+        <label for="url">Video URL:</label>
+        <input type="text" id="url" required>
+        <br><br>
+        <label for="format">Select Format:</label>
         <select id="format">
             <option value="mp3">MP3</option>
             <option value="mp4">MP4</option>
         </select>
+        <br><br>
         <button type="submit">Download</button>
     </form>
+
     <script>
-document.getElementById('downloadForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const url = document.getElementById('url').value;
-    const format = document.getElementById('format').value;
+        document.getElementById('downloadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-    try {
-        const response = await fetch('/api/download', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url, format })
+            const url = document.getElementById('url').value;
+            const format = document.getElementById('format').value;
+
+            const response = await fetch('/api/download', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url, format })
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const downloadUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = 'download.' + format;
+                a.click();
+            } else {
+                const error = await response.json();
+                alert('Error: ' + error.error);
+            }
         });
-
-        if (response.ok) {
-            // If successful, download the file
-            const blob = await response.blob();
-            const downloadUrl = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = `download.${format}`;
-            a.click();
-        } else {
-            // If error, show the error message (JSON response)
-            const error = await response.json();
-            alert(`Error: ${error.error}`);
-        }
-    } catch (err) {
-        alert('Error: ' + err.message);
-    }
-});
-
     </script>
 </body>
 </html>

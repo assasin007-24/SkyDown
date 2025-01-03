@@ -1,12 +1,14 @@
 {
     "builds": [
-      { "src": "main.py", "use": "@vercel/python" },
-      { "src": "index.html", "use": "@vercel/static" }
+        {
+            "src": "main.py",
+            "use": "@vercel/python"
+        }
     ],
     "routes": [
-      { "src": "/api/download", "dest": "main.py" },
-      { "src": "/(.*)", "dest": "/index.html" }
-    ],
-    "buildCommand": "pip install yt-dlp && apt-get update && apt-get install -y ffmpeg"
-  }
-  
+        {
+            "src": "/api/(.*)",
+            "dest": "/main.py"
+        }
+    ]
+}

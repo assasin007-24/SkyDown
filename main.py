@@ -1,53 +1,48 @@
 from flask import Flask, request, jsonify, send_file
 import yt_dlp
-import subprocess
 import os
+import subprocess
 import uuid
 
 app = Flask(__name__)
 
+def download_video(url, format, output_path):
+    ydl_opts = {
+        'format': 'bestaudio[ext=m4a]+bestvideo[ext=mp4]/best[ext=mp4]' if format == 'mp4' else 'bestaudio/best',
+        'outtmpl': os.path.join(output_path, '%(title)s.%(ext)s'),
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }] if format == 'mp3' else [],
+        'merge_output_format': 'mp4' if format == 'mp4' else None,
+        'ffmpeg_location': '/usr/local/bin/ffmpeg',  # Adjust path if needed
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+        return True, None
+    except Exception as e:
+        return False, str(e)
+
 @app.route('/api/download', methods=['POST'])
 def download():
-    try:
-        # Parse input
-        data = request.json
-        video_url = data.get('url')
-        format_type = data.get('format')  # 'mp3' or 'mp4'
+    data = request.json
+    url = data.get('url')
+    format = data.get('format')
+    output_path = 'downloads'
 
-        if not video_url or not format_type:
-            return jsonify({"error": "Missing url or format"}), 400
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
 
-        # Temporary unique file names
-        temp_id = str(uuid.uuid4())
-        output_file = f"{temp_id}.{format_type}"
+    success, error = download_video(url, format, output_path)
 
-        # yt-dlp options
-        ydl_opts = {
-            'format': 'bestaudio/best' if format_type == 'mp3' else 'bestvideo+bestaudio/best',
-            'outtmpl': f'{temp_id}.%(ext)s',
-            'quiet': True
-        }
-
-        # Download media
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=True)
-
-        # Convert using FFmpeg if mp3
-        if format_type == 'mp3':
-            input_file = f"{temp_id}.{info['ext']}"
-            subprocess.run(['ffmpeg', '-i', input_file, '-vn', '-ar', '44100', '-ac', '2', '-b:a', '192k', output_file], check=True)
-            os.remove(input_file)  # Clean up intermediate file
-
-        # Serve file directly (no JSON for successful file download)
-        return send_file(output_file, as_attachment=True, download_name=f"download.{format_type}")
-
-    except Exception as e:
-        # Return a JSON error response in case of failure
-        return jsonify({"error": str(e)}), 500
-    finally:
-        # Cleanup files
-        if os.path.exists(output_file):
-            os.remove(output_file)
+    if success:
+        filename = os.path.join(output_path, f"{uuid.uuid4()}.{format}")
+        return send_file(filename, as_attachment=True, download_name="download.mp4")
+    else:
+        return jsonify({"error": error}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
