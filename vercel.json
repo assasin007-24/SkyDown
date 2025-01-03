@@ -1,0 +1,17 @@
+{
+    "builds": [
+      { "src": "main.py", "use": "@vercel/python" },
+      { "src": "index.html", "use": "@vercel/static" }
+    ],
+    "routes": [
+      { "src": "/api/download", "dest": "main.py" },
+      { "src": "/(.*)", "dest": "/index.html" }
+    ],
+    "build": {
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      },
+      "postinstall": "pip install yt-dlp && apt-get update && apt-get install -y ffmpeg"
+    }
+  }
+  
