@@ -6,9 +6,11 @@ import re
 import threading
 from tkinter import ttk
 import sys
+import subprocess
 import traceback
 import webbrowser
 import requests
+import win32com.client
 from io import BytesIO
 from tkinter import PhotoImage
 
@@ -178,8 +180,27 @@ def on_leave(event, button):
 def show_version():
     messagebox.showinfo(
         title="SkyDown - Version",
-        message="Version 1.0 Stable Fusion \n For updates check our website."
+        message="Version 1.1.301-release__Stable_Neptun_Forged \n For updates check our website."
     )
+
+
+def run_converter():
+    try:
+        # Path to the .lnk file (shortcut)
+        shortcut_path = r"skydown-convertor.lnk"
+        
+        # Use pywin32 to open the shortcut and get the target .exe
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(shortcut_path)
+        target_path = shortcut.TargetPath
+        
+        # Run the target executable
+        subprocess.Popen(target_path)
+        
+        print(f"Converter program ({target_path}) opened successfully!")
+    except Exception as e:
+        print(f"Error: {e}")
+
 
 
 def open_url(url):
@@ -187,7 +208,7 @@ def open_url(url):
 
 def set_external_icon():
 
-    icon_url = "https://skydown.vercel.app/skydown.ico"
+    icon_url = "https://skydown.vercel.app/skydown.png"
     
     response = requests.get(icon_url)
     if response.status_code == 200:
@@ -200,7 +221,7 @@ def set_external_icon():
 
 
 app = tk.Tk()
-app.title("SkyDown - VOX")
+app.title("SkyDown - VOX | v1.1.301-release__Stable_Neptun_Forged")
 app.geometry("800x550")
 app.configure(bg="#121212")
 
@@ -210,6 +231,7 @@ menubar = tk.Menu(app)
 
 sky_down_menu = tk.Menu(menubar, tearoff=0)
 sky_down_menu.add_command(label="Version", command=show_version)
+sky_down_menu.add_command(label="Convertor", command=run_converter) 
 menubar.add_cascade(label="SkyDown", menu=sky_down_menu)
 
 web_menu = tk.Menu(menubar, tearoff=0)
