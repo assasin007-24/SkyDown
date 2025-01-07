@@ -1,18 +1,16 @@
 ;aiu;
 
-[General]
-MessageTitle = SkyDown - Updates
-MessageBody = Notification Message
-MessageExpirationDate = 06/01/2025
-
 [Update]
 Name = SkyDown
-ProductVersion = 1.0.0.0
+ProductVersion = 1.1.401.0
 URL = https://github.com/assasin007-24/SkyDown/releases/download/v1.1.301-release__Stable_Neptun_Forged/SkyDown.exe
-Size = 473818912
-ReleaseDate = 06/01/2025
-SHA256 = 8DBFFFCA0DCC476A688C2971C97ED31483F057057738B8127D264B5A7F073A01
-MD5 = 13db04002fe991a76189449872eb9c55
+Size = 361439936
+SHA256 = 5470DDD1531CB350FC766362AA523E9B7C98699B5ED0236FF140A00B20ACDBD6
+MD5 = 2f9c6d87d6163ed77a6e70783a7d1fca
 ServerFileName = SkyDown.exe
+Flags = Critical
 RegistryKey = HKUD\Software\RythmicIndustry - VOX\SkyDown\Version
-Version = 1.0.0.0
+Version = 1.1.401.0
+Feature = test
+Enhancement = test
+BugFix = test
