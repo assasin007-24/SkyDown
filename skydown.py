@@ -187,7 +187,7 @@ def open_url(url):
 
 def set_external_icon():
 
-    icon_url = "https://skydown.vercel.app/skydown.icon"
+    icon_url = "https://skydown.vercel.app/skydown.ico"
     
     response = requests.get(icon_url)
     if response.status_code == 200:
