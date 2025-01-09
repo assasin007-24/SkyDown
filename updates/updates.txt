@@ -1,5 +1,4 @@
-//do not remove!//
-vox_rythm_skydown
+;vox_rythm_skydown;
 ;github.assasin007-24.skydown;
 
 //settings//

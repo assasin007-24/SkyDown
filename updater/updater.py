@@ -31,7 +31,7 @@ def fetch_update_config(url):
 
 # Function to parse update.txt
 def parse_update_config(config_text):
-    if not config_text.startswith("vox_rythm_skydown"):
+    if not config_text.startswith(";vox_rythm_skydown;"):
         raise ValueError("Invalid configuration file. Missing 'vox_rythm_skydown' header.")
 
     settings = {}
