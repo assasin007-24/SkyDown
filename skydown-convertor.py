@@ -9,13 +9,6 @@ from io import BytesIO
 from tkinter import PhotoImage
 from pydub import AudioSegment
 from pydub.exceptions import PydubException
-import docx
-import PyPDF2
-import csv
-import json
-from docx import Document
-import subprocess
-import ffmpeg
 
 # Redirecting stdout and stderr to capture them in the log window
 class TextRedirector:
@@ -114,33 +107,9 @@ def convert_file(log_text):
         # Start the conversion and log the output
         log_message(f"Starting conversion: {input_file} -> {output_file}...")
 
-        # Handle different file formats
-        file_extension = os.path.splitext(input_file)[1].lower()
-
-        if file_extension in [".mp3", ".wav", ".flac", ".m4a", ".ogg", ".opus"]:
-            # Audio conversion
-            converter = AudioConverter(input_file, output_file, selected_format)
-            converter.convert(log_text)
-        elif file_extension in [".doc", ".docx"]:
-            # Word document conversion to .txt
-            converter = WordToTextConverter(input_file, output_file)
-            converter.convert(log_text)
-        elif file_extension == ".pdf":
-            # PDF to .txt conversion
-            converter = PDFToTextConverter(input_file, output_file)
-            converter.convert(log_text)
-        elif file_extension == ".csv":
-            # CSV to JSON conversion
-            converter = CSVToJSONConverter(input_file, output_file)
-            converter.convert(log_text)
-        elif file_extension in [".mp4", ".avi", ".mov", ".mkv"]:
-            # Video file conversion
-            converter = VideoConverter(input_file, output_file, selected_format)
-            converter.convert(log_text)
-        else:
-            log_message(f"Unsupported file format: {file_extension}")
-            messagebox.showerror("Error", f"Unsupported file format: {file_extension}")
-            return
+        # Start the conversion process
+        converter = AudioConverter(input_file, output_file, selected_format)
+        converter.convert(log_text)
 
         # Show conversion notification
         show_conversion_notification(input_file, output_file, output_folder)
@@ -182,108 +151,62 @@ class AudioConverter:
         except PydubException as e:
             log_message(f"Audio conversion failed: {str(e)}")
 
-# Word to Text conversion using python-docx
-class WordToTextConverter:
-    def __init__(self, input_file, output_file):
-        self.input_file = input_file
-        self.output_file = output_file
+def set_external_icon():
 
-    def convert(self, log_text):
-        try:
-            doc = docx.Document(self.input_file)
-            text = "\n".join([para.text for para in doc.paragraphs])
-            with open(self.output_file, 'w') as file:
-                file.write(text)
-            log_message(f"Word document converted successfully to {self.output_file}")
+    icon_url = "https://skydown.vercel.app/skydown.png"
+    
+    response = requests.get(icon_url)
+    if response.status_code == 200:
 
-        except Exception as e:
-            log_message(f"Word conversion failed: {str(e)}")
+        icon_data = BytesIO(response.content)
 
-# PDF to Text conversion using PyPDF2
-class PDFToTextConverter:
-    def __init__(self, input_file, output_file):
-        self.input_file = input_file
-        self.output_file = output_file
+        app.iconphoto(True, PhotoImage(data=icon_data.read()))
+    else:
+        print("Failed to download the icon.")
 
-    def convert(self, log_text):
-        try:
-            pdf_reader = PyPDF2.PdfReader(self.input_file)
-            text = ""
-            for page in range(len(pdf_reader.pages)):
-                text += pdf_reader.pages[page].extract_text()
-
-            with open(self.output_file, 'w') as file:
-                file.write(text)
-
-            log_message(f"PDF converted successfully to {self.output_file}")
-
-        except Exception as e:
-            log_message(f"PDF conversion failed: {str(e)}")
-
-# CSV to JSON conversion
-class CSVToJSONConverter:
-    def __init__(self, input_file, output_file):
-        self.input_file = input_file
-        self.output_file = output_file
-
-    def convert(self, log_text):
-        try:
-            with open(self.input_file, newline='', encoding='utf-8') as csvfile:
-                reader = csv.DictReader(csvfile)
-                rows = list(reader)
-                with open(self.output_file, 'w', encoding='utf-8') as jsonfile:
-                    json.dump(rows, jsonfile, indent=4)
-            log_message(f"CSV converted successfully to {self.output_file}")
-
-        except Exception as e:
-            log_message(f"CSV conversion failed: {str(e)}")
-
-# Video file conversion using FFmpeg
-class VideoConverter:
-    def __init__(self, input_file, output_file, selected_format):
-        self.input_file = input_file
-        self.output_file = output_file
-        self.selected_format = selected_format
-
-    def convert(self, log_text):
-        try:
-            # Using FFmpeg for video conversion
-            log_message(f"Converting video file {self.input_file} to {self.output_file}...")
-            ffmpeg.input(self.input_file).output(self.output_file).run()
-            log_message(f"Video converted successfully to {self.output_file}")
-
-        except Exception as e:
-            log_message(f"Video conversion failed: {str(e)}")
-
-# Initialize Tkinter app
+# Create the main window
 app = tk.Tk()
 app.title("SkyDown - File Converter")
-app.geometry("600x400")
 
-# Variables
+# Set dark mode colors
+app.configure(bg="#121212")
+app.resizable(False, False)  # Make the window non-resizable
+set_external_icon()
+# Input file path
 input_file_var = tk.StringVar()
+input_label = tk.Label(app, text="Input File:", fg="#ffffff", bg="#121212", font=("Arial", 12))
+input_label.grid(row=0, column=0, padx=10, pady=10, sticky="e")
+input_entry = tk.Entry(app, textvariable=input_file_var, width=50, bg="#2e2e2e", fg="#ffffff", font=("Arial", 12))
+input_entry.grid(row=0, column=1, padx=10, pady=10)
+input_button = tk.Button(app, text="Browse", command=browse_input, bg="#007bff", fg="#ffffff", font=("Arial", 12))
+input_button.grid(row=0, column=2, padx=10, pady=10)
+
+# Output folder path
 output_folder_var = tk.StringVar()
-format_var = tk.StringVar(value="mp3")
+output_label = tk.Label(app, text="Output Folder:", fg="#ffffff", bg="#121212", font=("Arial", 12))
+output_label.grid(row=1, column=0, padx=10, pady=10, sticky="e")
+output_entry = tk.Entry(app, textvariable=output_folder_var, width=50, bg="#2e2e2e", fg="#ffffff", font=("Arial", 12))
+output_entry.grid(row=1, column=1, padx=10, pady=10)
+output_button = tk.Button(app, text="Browse", command=browse_output, bg="#007bff", fg="#ffffff", font=("Arial", 12))
+output_button.grid(row=1, column=2, padx=10, pady=10)
 
-# Input File Label and Button
-tk.Label(app, text="Input File:").pack(pady=5)
-tk.Entry(app, textvariable=input_file_var, width=50).pack(pady=5)
-tk.Button(app, text="Browse Input", command=browse_input).pack(pady=5)
+# Format selection dropdown
+format_label = tk.Label(app, text="Select Format:", fg="#ffffff", bg="#121212", font=("Arial", 12))
+format_label.grid(row=2, column=0, padx=10, pady=10, sticky="e")
+format_options = ["mp3", "ogg", "wav", "flac"]
+format_var = tk.StringVar()
+format_var.set(format_options[0])  # Default to mp3
+format_menu = tk.OptionMenu(app, format_var, *format_options)
+format_menu.config(bg="#2e2e2e", fg="#ffffff", font=("Arial", 12))
+format_menu.grid(row=2, column=1, padx=10, pady=10)
 
-# Output Folder Label and Button
-tk.Label(app, text="Output Folder:").pack(pady=5)
-tk.Entry(app, textvariable=output_folder_var, width=50).pack(pady=5)
-tk.Button(app, text="Browse Output", command=browse_output).pack(pady=5)
+# Convert button
+convert_button = tk.Button(app, text="Convert", command=lambda: convert_file_thread(), bg="#28a745", fg="#ffffff", font=("Arial", 12))
+convert_button.grid(row=3, column=0, columnspan=3, padx=10, pady=20)
 
-# Format Selection Dropdown
-tk.Label(app, text="Select Format:").pack(pady=5)
-tk.OptionMenu(app, format_var, "mp3", "wav", "flac", "ogg", "opus", "mp4", "avi", "mov", "mkv", "txt", "json").pack(pady=5)
+# Show logs button
+logs_button = tk.Button(app, text="Show Logs", command=show_logs, bg="#007bff", fg="#ffffff", font=("Arial", 12))
+logs_button.grid(row=4, column=0, columnspan=3, padx=10, pady=10)
 
-# Convert Button
-tk.Button(app, text="Convert", command=lambda: convert_file_thread(log_text)).pack(pady=20)
-
-# Show Logs Button
-tk.Button(app, text="Show Logs", command=show_logs).pack(pady=5)
-
-# Start Tkinter event loop
+# Run the Tkinter event loop
 app.mainloop()
