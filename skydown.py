@@ -180,7 +180,7 @@ def on_leave(event, button):
 def show_version():
     messagebox.showinfo(
         title="SkyDown - Version",
-        message="Version 1.1.301-release__Stable_Neptun_Forged \n For updates check our website."
+        message="Version 1.1.401-release__Beta_Astral_Time \n For updates check our website."
     )
 
 
@@ -221,7 +221,7 @@ def set_external_icon():
 
 
 app = tk.Tk()
-app.title("SkyDown - VOX | v1.1.301-release__Stable_Neptun_Forged")
+app.title("SkyDown - VOX | v1.1.401-release__Beta_Astral_Time")
 app.geometry("800x550")
 app.configure(bg="#121212")
 
