@@ -31,8 +31,8 @@ def fetch_update_config(url):
 
 # Function to parse update.txt
 def parse_update_config(config_text):
-    if not config_text.startswith(";vox_rythm_skydown;"):
-        raise ValueError("Invalid configuration file. Missing 'vox_rythm_skydown' header.")
+    if not config_text.lower().startswith(";vox_rythm_skydown;".lower()):
+        raise ValueError("Invalid configuration file. Missing ';vox_rythm_skydown;' header.")
 
     settings = {}
     for line in config_text.splitlines():
@@ -71,25 +71,31 @@ class UpdaterApp:
     def __init__(self, root):
         self.root = root
         self.root.title("SkyDown Updater")
-        self.root.geometry("500x300")
+        self.root.geometry("600x400")
+        self.root.resizable(False, False)
+        self.root.configure(bg="#2e2e2e")  # Dark background
 
-        # Labels
-        self.label_status = ttk.Label(self.root, text="Checking for updates...")
+        # Title Label
+        self.label_title = ttk.Label(self.root, text="SkyDown Updater", font=("Helvetica", 18, "bold"), foreground="#ffffff", background="#2e2e2e")
+        self.label_title.pack(pady=20)
+
+        # Status Label
+        self.label_status = ttk.Label(self.root, text="Checking for updates...", font=("Helvetica", 12), foreground="#ffffff", background="#2e2e2e")
         self.label_status.pack(pady=10)
 
         # Progress Bar
-        self.progress_bar = ttk.Progressbar(self.root, orient="horizontal", length=400, mode="determinate")
-        self.progress_bar.pack(pady=10)
+        self.progress_bar = ttk.Progressbar(self.root, orient="horizontal", length=500, mode="determinate", maximum=100)
+        self.progress_bar.pack(pady=20)
 
         # Buttons
-        self.button_update = ttk.Button(self.root, text="Start Update", command=self.start_update_thread, state=tk.DISABLED)
+        self.button_update = ttk.Button(self.root, text="Start Update", command=self.start_update_thread, state=tk.DISABLED, width=20, style="Accent.TButton")
         self.button_update.pack(pady=5)
 
-        self.button_logs = ttk.Button(self.root, text="Show Logs", command=self.show_logs)
+        self.button_logs = ttk.Button(self.root, text="Show Logs", command=self.show_logs, width=20, style="TButton")
         self.button_logs.pack(pady=5)
 
-        self.button_close = ttk.Button(self.root, text="Close", command=self.root.quit)
-        self.button_close.pack(pady=5)
+        self.button_close = ttk.Button(self.root, text="Close", command=self.root.quit, width=20, style="TButton")
+        self.button_close.pack(pady=20)
 
         # Log Window
         self.log_window = None
@@ -165,7 +171,7 @@ class UpdaterApp:
             self.log_window.title("Logs")
             self.log_window.geometry("500x300")
 
-            text_area = scrolledtext.ScrolledText(self.log_window, state="disabled", wrap=tk.WORD)
+            text_area = scrolledtext.ScrolledText(self.log_window, state="disabled", wrap=tk.WORD, bg="#1e1e1e", fg="#ffffff")
             text_area.pack(expand=True, fill="both")
 
             # Redirect logs to the text area
@@ -183,6 +189,10 @@ class UpdaterApp:
 
 # Main Function
 if __name__ == "__main__":
+    style = ttk.Style()
+    style.configure("TButton", font=("Helvetica", 10), padding=6, relief="flat", background="#444444", foreground="#ffffff")
+    style.configure("Accent.TButton", font=("Helvetica", 10), padding=6, relief="flat", background="#5bc0de", foreground="#ffffff")
+    
     root = tk.Tk()
     app = UpdaterApp(root)
     root.mainloop()
